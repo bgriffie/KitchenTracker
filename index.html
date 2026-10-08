@@ -235,6 +235,7 @@ dialog::backdrop { background: rgba(28, 21, 16, .55); }
     <symbol id="i-griddle" viewBox="0 0 32 32"><ellipse cx="14" cy="17" rx="10" ry="5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M24 17h6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="14" cy="15" rx="5" ry="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 6c1 1.5-1 3 0 4.5M14 5c1 1.5-1 3 0 4.5M19 6c1 1.5-1 3 0 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
     <symbol id="i-pot" viewBox="0 0 32 32"><path d="M6 12h20v11a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M26 15h4M4 12h24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M11 4c1 1.5-1 3 0 4.5M16 3c1 1.5-1 3 0 4.5M21 4c1 1.5-1 3 0 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
     <symbol id="i-bowl" viewBox="0 0 32 32"><path d="M4 14h24a12 11 0 0 1-24 0z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M11 27h10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M17 11l4-6M20 11l3-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-oven" viewBox="0 0 32 32"><rect x="5" y="5" width="22" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5 11h22" stroke="currentColor" stroke-width="2.2"/><rect x="10" y="15" width="12" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="8" r="1.2" fill="currentColor"/><circle cx="15" cy="8" r="1.2" fill="currentColor"/></symbol>
     <symbol id="i-sweet" viewBox="0 0 32 32"><path d="M7 14h18l-2 13H9z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M8 14a8 7 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="16" cy="5" r="2.2" fill="currentColor"/></symbol>
   </defs>
 </svg>
@@ -494,6 +495,13 @@ const RECIPES = [
     ing:[[[[0.75, "cup", 180.0]], "plain Greek yogurt"], [[[1, "", 50]], "egg"], [[[0.5, "cup", 60.0]], "cocoa powder"], [[[0.4, "cup", 80.0]], "granulated erythritol"], [[[0.5, "tsp", 0.5], ["pinch", "", null]], "coffee powder and salt (optional)"], [[["handful", "", null]], "chocolate chips (optional)"]],
     tree:["cool fully, then cut",["bake 22–30 min",["pour into pan, top",["mix until smooth",0,1,2,3,4],5]]],
     post:["Keeps 4 days in the fridge"] },
+  { id:"muffins", name:"Greek Yogurt Blueberry Protein Muffins", app:"oven", cat:"sweet", serves:6, kcal:342, p:20, c:38, f:12, bg:"#3d4f8a", food:["#e3b878","#f4ead7","#3b3f8f"], isNew:true,
+    src:{ site:"Real Life Nutritionist", title:"High Protein Blueberry Muffins", url:"https://reallifenutritionist.com/high-protein-blueberry-muffins/", stars:5, n:22 },
+    change:"Makes 12 muffins; a serving is 2. For more protein we swapped ¼ cup flour for whey, used nonfat Greek yogurt, and traded some oil for extra yogurt (source: 8 g protein per muffin, ours about 10 g).",
+    pre:["Preheat oven to 350°F; line a 12-cup muffin pan"],
+    ing:[[[[1.25, "cup", 156]], "all-purpose flour"], [[[0.75, "cup", 75]], "vanilla whey protein"], [[[1, "tsp", 4]], "baking powder"], [[[0.5, "tsp", 2.3]], "baking soda"], [[[0.5, "tsp", 3.0]], "salt"], [[[1, "cup", 148]], "blueberries"], [[[1.25, "cup", 306]], "nonfat plain Greek yogurt"], [[[0.33, "cup", 107]], "maple syrup"], [[[0.25, "cup", 54]], "olive oil"], [[[2, "tsp", 8]], "vanilla extract"], [[[2, "large", 100]], "eggs"]],
+    tree:["cool 10 min in pan, then on a rack",["bake 18–22 min, until a toothpick comes out clean",["fold until just combined; fill 12 cups",["toss to coat",["whisk",0,1,2,3,4],5],["whisk until smooth",6,7,8,9,10]]]],
+    post:["Keeps 4 days in the fridge or 3 months frozen", "Add a cup of Greek yogurt for about 43 g protein"] },
   { id:"rice", name:"Cilantro Lime Rice", app:"stovetop", cat:"side", serves:4, kcal:219, p:3, c:37, f:6, bg:"#7fae4a", food:["#fffaf2","#4f7a2e","#e8c77a"],
     src:{ site:"Family Fresh Meals", title:"Copycat Chipotle Cilantro Lime Rice", url:"https://www.familyfreshmeals.com/copycat-chipotle-cilantro-lime-rice/", stars:4.94, n:32 },
     ing:[[[[1, "tbsp", 14.2]], "butter"], [[[1, "", null]], "bay leaf"], [[[1, "cup", 185]], "basmati rice"], [[[2, "cup", 480]], "water"], [[[1, "tsp", 6]], "salt"], [[[1, "tbsp", 14.2]], "butter"], [[[2, "tbsp", 2]], "fresh cilantro, chopped"], [[[1.5, "tbsp", 22.5]], "fresh lime juice"], [[[1, "tbsp", 15]], "fresh lemon juice"]],
@@ -563,7 +571,7 @@ const ADDONS = [
   { id:"whey", name:"Whey or casein scoop", kcal:120, p:24, c:3, f:1 }
 ];
 const ALL = Object.fromEntries([...RECIPES, ...ADDONS].map(x => [x.id, x]));
-const APP_LABEL = { crockpot:"Crockpot", airfryer:"Air fryer", grill:"Grill", griddle:"Griddle", stovetop:"Stovetop", salad:"Salad" };
+const APP_LABEL = { crockpot:"Crockpot", airfryer:"Air fryer", grill:"Grill", griddle:"Griddle", stovetop:"Stovetop", salad:"Salad", oven:"Oven" };
 const EXAMPLE = [["mix",1],["salsa",1],["souvlaki",1],["yogurt",1]];
 
 const store = {
@@ -582,7 +590,7 @@ const targets = () => { const k = kg(); return { lo:Math.round(k*1.6), hi:Math.r
 
 function plateArt(r) {
   const [a, b, g] = r.food;
-  const kind = r.id === "brownies" ? "squares" : r.app === "stovetop" ? "mound" : r.app === "salad" ? "toss" : r.app;
+  const kind = r.id === "brownies" ? "squares" : r.app === "oven" ? "muffins" : r.app === "stovetop" ? "mound" : r.app === "salad" ? "toss" : r.app;
   const pieces = {
     crockpot: `<ellipse cx="60" cy="60" rx="34" ry="30" fill="${a}"/><circle cx="48" cy="52" r="7" fill="${b}" opacity=".8"/><circle cx="70" cy="66" r="6" fill="${b}" opacity=".8"/><circle cx="66" cy="48" r="4" fill="${g}"/><circle cx="52" cy="70" r="4" fill="${g}"/>`,
     airfryer: `<rect x="34" y="40" width="22" height="16" rx="6" fill="${a}" transform="rotate(-12 45 48)"/><rect x="60" y="36" width="22" height="16" rx="6" fill="${a}" transform="rotate(10 71 44)"/><rect x="44" y="62" width="22" height="16" rx="6" fill="${a}" transform="rotate(4 55 70)"/><circle cx="76" cy="70" r="6" fill="${g}"/><circle cx="40" cy="70" r="3" fill="${b}"/>`,
@@ -590,6 +598,7 @@ function plateArt(r) {
     griddle: `<ellipse cx="60" cy="70" rx="32" ry="12" fill="${b}"/><ellipse cx="60" cy="62" rx="32" ry="12" fill="${a}"/><ellipse cx="60" cy="54" rx="32" ry="12" fill="${a}" stroke="${b}" stroke-width="1.5"/><ellipse cx="60" cy="46" rx="32" ry="12" fill="${a}" stroke="${b}" stroke-width="1.5"/><circle cx="52" cy="44" r="4" fill="${g}"/><circle cx="64" cy="42" r="4" fill="${g}"/><circle cx="70" cy="48" r="3.5" fill="${g}"/>`,
     mound: `<ellipse cx="60" cy="62" rx="34" ry="26" fill="${a}" stroke="#e9dcc3" stroke-width="2"/><ellipse cx="54" cy="56" rx="16" ry="9" fill="#fff" opacity=".6"/><circle cx="48" cy="66" r="4" fill="${b}"/><circle cx="68" cy="58" r="4" fill="${b}"/><circle cx="74" cy="70" r="5" fill="${g}"/>`,
     toss: `<circle cx="46" cy="50" r="9" fill="${a}"/><circle cx="72" cy="46" r="8" fill="${b}"/><circle cx="60" cy="70" r="9" fill="${b}"/><circle cx="80" cy="66" r="7" fill="${a}"/><circle cx="42" cy="72" r="7" fill="${g}"/><rect x="56" y="38" width="12" height="9" rx="2" fill="${g}"/>`,
+    muffins: `<path d="M30 58h24l-3 22H33z" fill="${b}"/><ellipse cx="42" cy="56" rx="15" ry="11" fill="${a}"/><path d="M66 58h24l-3 22H69z" fill="${b}"/><ellipse cx="78" cy="56" rx="15" ry="11" fill="${a}"/><path d="M48 40h24l-3 20H51z" fill="${b}"/><ellipse cx="60" cy="38" rx="15" ry="11" fill="${a}"/><circle cx="55" cy="36" r="3" fill="${g}"/><circle cx="65" cy="40" r="2.5" fill="${g}"/><circle cx="38" cy="54" r="2.5" fill="${g}"/><circle cx="46" cy="58" r="2.5" fill="${g}"/><circle cx="76" cy="53" r="3" fill="${g}"/><circle cx="83" cy="58" r="2.5" fill="${g}"/>`,
     squares: `<rect x="32" y="34" width="26" height="24" rx="3" fill="${a}"/><rect x="62" y="34" width="26" height="24" rx="3" fill="${b}"/><rect x="47" y="62" width="26" height="24" rx="3" fill="${a}"/><circle cx="45" cy="44" r="2.5" fill="${g}"/><circle cx="75" cy="47" r="2.5" fill="${g}"/><circle cx="60" cy="72" r="2.5" fill="${g}"/>`
   }[kind];
   return `<svg class="plate-art" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="62" cy="64" rx="56" ry="56" fill="#000" opacity=".18"/><circle cx="60" cy="60" r="56" fill="#fffaf2"/><circle cx="60" cy="60" r="44" fill="none" stroke="#e9dcc3" stroke-width="2"/>${pieces}</svg>`;
