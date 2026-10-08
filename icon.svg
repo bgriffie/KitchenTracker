@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <filter id="g" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="s" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect y="3" width="4" height="1" fill="#000" fill-opacity=".35"/>
+    </pattern>
+    <filter id="nz">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/>
+      <feColorMatrix values="0 0 0 0 .35  0 0 0 0 .3  0 0 0 0 .2  0 0 0 .25 0"/>
+    </filter>
+  </defs>
+  <!-- case -->
+  <rect width="512" height="512" fill="#D9CDB4"/>
+  <rect width="512" height="512" filter="url(#nz)"/>
+  <rect width="512" height="10" fill="#E8DFCB"/>
+  <!-- bezel + screen -->
+  <rect x="56" y="56" width="400" height="330" rx="34" fill="#BFB193"/>
+  <rect x="72" y="70" width="368" height="302" rx="26" fill="#030703"/>
+  <!-- GLYPH: a steaming cooking pot -->
+  <g transform="translate(0 22)">
+  <g fill="#FFB13B" filter="url(#g)">
+    <path d="M194 92h16v16h-16zM210 108h16v16h-16zM194 124h16v16h-16z"/>
+    <path d="M246 84h16v16h-16zM262 100h16v16h-16zM246 116h16v16h-16z"/>
+    <path d="M298 92h16v16h-16zM314 108h16v16h-16zM298 124h16v16h-16z"/>
+  </g>
+  <g fill="#39FF6A" filter="url(#g)">
+    <rect x="236" y="158" width="40" height="14"/>
+    <rect x="148" y="176" width="216" height="20"/>
+    <path d="M164 204h184v84h-16v16H180v-16h-16z"/>
+    <rect x="126" y="216" width="30" height="20"/>
+    <rect x="356" y="216" width="30" height="20"/>
+  </g>
+  <rect x="164" y="240" width="184" height="8" fill="#030703"/>
+  </g>
+  <rect x="72" y="70" width="368" height="302" rx="26" fill="url(#s)"/>
+  <!-- drive slot + power LED -->
+  <rect x="96" y="420" width="120" height="10" rx="3" fill="#9C8E70"/>
+  <circle cx="400" cy="425" r="9" fill="#39FF6A"/>
+</svg>

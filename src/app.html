@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en" data-app="kitchen-log">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kitchen Log</title>
+  <meta name="theme-color" content="#D9CDB4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kitchen Log">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <style>
+/*@@PHOSPHOR_CSS@@*/
+    /* === tool-specific styles below === */
+
+    .ico { width: 18px; height: 18px; flex: none; color: var(--text-dim); }
+
+    /* Plate */
+    .plate-total { display: flex; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap; }
+    .plate-total .of { color: var(--text-dim); font-size: var(--fs-sm); }
+    .target-meter { position: relative; margin-top: var(--sp-3); }
+    .target-meter .band {
+      position: absolute; top: -4px; bottom: -4px; pointer-events: none;
+      border-left: 1px dashed var(--text-dim); border-right: 1px dashed var(--text-dim);
+    }
+    .target-scale { display: flex; justify-content: space-between; margin-top: var(--sp-2); font-size: var(--fs-xs); color: var(--text-dim); }
+    .status { font-size: var(--fs-sm); margin-top: var(--sp-3); }
+    .status.warn { color: var(--amber); }
+    .status.warn::before { content: "WARN> "; font-weight: 700; }
+    .status.good { color: var(--accent); }
+    .status.good::before { content: "✓ "; font-weight: 700; }
+    .plate-items > li { gap: var(--sp-2); }
+    .plate-items .name { flex: 1 1 auto; min-width: 0; font-size: var(--fs-sm); line-height: 1.3; }
+    .name-link { background: none; border: 0; padding: 0; color: var(--text); font: inherit; text-align: left; cursor: pointer; text-decoration: underline dotted var(--line-strong); text-underline-offset: 3px; }
+    .plate-items .p { width: 52px; text-align: right; font-size: var(--fs-sm); font-weight: 700; flex: none; }
+    .qty { display: flex; align-items: center; flex: none; }
+    .qty .btn { width: 36px; min-height: 36px; padding: 0; font-size: var(--fs-md); }
+    .qty .num { width: 40px; text-align: center; font-size: var(--fs-sm); }
+    .macros { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-2); margin-top: var(--sp-3); text-align: center; }
+    .macros div { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: var(--sp-2) var(--sp-1); }
+    .macros span { display: block; font-size: var(--fs-xs); color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; }
+    .macros b { font-size: var(--fs-md); }
+    .note { font-size: var(--fs-xs); color: var(--text-dim); margin-top: var(--sp-3); }
+    .panel-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); }
+    .panel-actions .btn { flex: 1; }
+
+    /* Menu (recipe list) */
+    .chips { display: flex; gap: var(--sp-2); overflow-x: auto; margin: 0 calc(-1 * var(--sp-3)); padding: 2px var(--sp-3); scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chips button {
+      flex: none; display: inline-flex; align-items: center; gap: 6px;
+      min-height: 36px; padding: 0 var(--sp-3);
+      border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: transparent;
+      color: var(--text-dim); font: inherit; font-size: var(--fs-xs); font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em; cursor: pointer;
+    }
+    .chips button .ico { width: 16px; height: 16px; color: inherit; }
+    .chips button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    .list-meta { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-2); font-size: var(--fs-xs); color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; }
+    .list-meta button { background: none; border: 0; padding: var(--sp-2) 0; color: var(--cyan); font: inherit; cursor: pointer; text-transform: inherit; letter-spacing: inherit; }
+    .cards { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .card { display: flex; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-1); }
+    .card.on { border-color: var(--line-strong); }
+    .card-open {
+      flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px;
+      padding: var(--sp-3); background: none; border: 0; color: var(--text); font: inherit; text-align: left; cursor: pointer;
+    }
+    .card-open:active { background: var(--surface-2); }
+    .card-top { display: flex; align-items: flex-start; gap: var(--sp-2); }
+    .card-top h3 { flex: 1 1 auto; min-width: 0; font-size: var(--fs-md); line-height: 1.25; }
+    .card-top .pro { flex: none; font-size: var(--fs-lg); font-weight: 700; color: var(--accent); line-height: 1.1; }
+    .card-top .pro small { font-size: var(--fs-xs); color: var(--text-dim); font-weight: 400; }
+    .card .meta { font-size: var(--fs-xs); color: var(--text-dim); line-height: 1.4; }
+    .card .macro-line { font-size: var(--fs-xs); color: var(--text); }
+    .card .macro-line b { font-weight: 700; }
+    .card .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .card-add {
+      flex: none; width: 56px; display: grid; place-items: center; align-content: center; gap: 2px;
+      background: transparent; border: 0; border-left: 1px solid var(--line); color: var(--accent);
+      font: inherit; font-size: var(--fs-lg); font-weight: 700; cursor: pointer;
+    }
+    .card-add small { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); font-weight: 400; }
+    .card-add:active { background: var(--surface-2); }
+    .card.on .card-add { color: var(--on-accent); background: var(--accent-dim); }
+    .card.on .card-add small { color: var(--on-accent); }
+    .stars { color: var(--amber); }
+
+    /* Recipe page */
+    .rec-head { display: flex; flex-direction: column; gap: var(--sp-2); }
+    .rec-head .label { display: flex; align-items: center; gap: 6px; }
+    .rec-head h2 { font-size: var(--fs-lg); line-height: 1.25; }
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .per-serving { display: flex; align-items: center; gap: var(--sp-4); }
+    .per-serving .readout small { font-size: var(--fs-md); color: var(--text-dim); text-shadow: none; }
+    .per-serving .stack { flex: 1; gap: 0; }
+    .stepper { display: flex; align-items: center; gap: var(--sp-2); }
+    .stepper .btn { width: var(--tap); padding: 0; font-size: var(--fs-lg); }
+    .stepper output { min-width: 3ch; text-align: center; font-size: var(--fs-lg); font-weight: 700; color: var(--text); }
+    .stepper .grow { text-align: right; }
+    .stepper .reset { background: none; border: 0; color: var(--cyan); font: inherit; font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: .08em; padding: var(--sp-2) 0; cursor: pointer; }
+    .cfe-wrap { overflow-x: auto; margin: 0 calc(-1 * var(--sp-3)); padding: 0 var(--sp-3); }
+    .cfe { border-collapse: collapse; width: 100%; font-size: var(--fs-xs); line-height: 1.35; }
+    .cfe td { border: 1px solid var(--line-strong); padding: 6px 7px; vertical-align: middle; }
+    .cfe td.ing { text-align: left; color: var(--text); min-width: 112px; }
+    .cfe td.ing .amt { color: var(--accent); font-weight: 700; }
+    .cfe td.op { text-align: center; color: var(--text-dim); font-weight: 700; width: 1%; min-width: 78px; max-width: 120px; background: var(--surface-1); }
+    .cfe td.op.final { color: var(--accent); background: var(--surface-2); }
+    .cfe td.step { text-align: center; color: var(--amber); background: var(--surface-1); font-weight: 700; }
+    .pair { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-3) 0; border-bottom: 1px solid var(--line); }
+    .pair:first-of-type { padding-top: 0; }
+    .pair:last-child { border-bottom: 0; padding-bottom: 0; }
+    .pair b { font-size: var(--fs-sm); }
+    .pair small { display: block; font-size: var(--fs-xs); color: var(--text-dim); }
+    .pair .row .btn { flex: 1; min-height: 40px; }
+    .source { font-size: var(--fs-xs); color: var(--text-dim); line-height: 1.5; }
+    .source a { color: var(--cyan); }
+    .change { font-size: var(--fs-sm); }
+
+    /* Shopping */
+    .shop-progress { display: flex; flex-direction: column; gap: var(--sp-2); }
+    .shop-group .check { min-height: 44px; font-size: var(--fs-sm); line-height: 1.35; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .shop-group .check:last-child { border-bottom: 0; }
+    .shop-group .check b { color: var(--accent); }
+    .shop-group .check:has(input:checked) span { color: var(--text-faint); text-decoration: line-through; }
+    .shop-group .check:has(input:checked) b { color: var(--text-faint); }
+
+    /* Guide */
+    .temps .kv > :last-child { color: var(--accent); }
+    .guide p { font-size: var(--fs-sm); color: var(--text); }
+    .guide h3 { font-size: var(--fs-sm); color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin-bottom: var(--sp-1); }
+    .guide .stack { gap: var(--sp-4); }
+  </style>
+</head>
+<body>
+<!--@@ICONS@@-->
+  <main class="app">
+    <header class="app-header">
+      <h1 class="app-title" data-view-title>Kitchen Log</h1>
+      <span class="app-meta">v2.0</span>
+    </header>
+    <div class="screen">
+      <canvas class="rain" aria-hidden="true" hidden></canvas>
+      <nav class="path" data-path aria-label="Location"></nav>
+      <div class="screen-body">
+
+      <!-- ============ TODAY'S PLATE ============ -->
+      <section class="view" data-route="/" data-title="Kitchen Log">
+        <section class="panel" data-title="Today's plate">
+          <div class="plate-total">
+            <span class="readout" id="p-total">0<small> g</small></span>
+            <span class="of">of <span id="p-target">128–176</span> g protein</span>
+          </div>
+          <div class="target-meter">
+            <div class="meter" role="progressbar" aria-label="Protein toward today's target" aria-valuemin="0" id="p-meter"><span id="p-fill"></span></div>
+            <div class="band" id="p-band" aria-hidden="true"></div>
+          </div>
+          <div class="status" id="p-status" role="status"></div>
+          <ul class="list plain plate-items" id="plate-items" style="margin-top: var(--sp-3)"></ul>
+          <div class="macros">
+            <div><span>Calories</span><b id="m-kcal">0</b></div>
+            <div><span>Carbs</span><b id="m-c">0 g</b></div>
+            <div><span>Fat</span><b id="m-f">0 g</b></div>
+          </div>
+          <p class="note" id="example-note">This is an example day. Add or remove dishes to make it yours.</p>
+          <div class="panel-actions">
+            <button type="button" class="btn btn-primary" data-route="/menu">+ Add a dish</button>
+          </div>
+        </section>
+
+        <div class="menu-group">
+          <span class="label">Your numbers</span>
+          <div class="menu">
+            <a class="menu-item" href="#/target"><span class="mi-glyph" aria-hidden="true">○</span><span class="mi-label">Protein target<small id="home-weight">Body weight 176 lb</small></span><span class="mi-value" id="home-target">128–176 g/day</span></a>
+            <a class="menu-item" href="#/shop"><span class="mi-glyph" aria-hidden="true">□</span><span class="mi-label">Shopping list<small>Everything for the dishes on your plate</small></span><span class="mi-value" id="home-shop">—</span></a>
+          </div>
+        </div>
+
+        <div class="menu-group">
+          <span class="label">Quick protein add-ons</span>
+          <div class="menu" id="addons"></div>
+          <p class="menu-note">Tap one to put it on today's plate.</p>
+        </div>
+      </section>
+
+      <!-- ============ PROTEIN TARGET ============ -->
+      <section class="view" data-route="/target" data-title="Target">
+        <section class="panel" data-title="Body weight">
+          <div class="stack">
+            <div class="field">
+              <label class="label" for="weight">Weight</label>
+              <div class="row">
+                <input class="input grow" id="weight" type="number" min="30" max="400" step="1" inputmode="decimal" enterkeyhint="done">
+                <div class="segmented" role="group" aria-label="Weight unit" style="flex: none; width: 120px">
+                  <button type="button" id="unit-lb" aria-pressed="true">lb</button>
+                  <button type="button" id="unit-kg" aria-pressed="false">kg</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="panel" data-title="Your target">
+          <div class="readout" id="t-daily" style="font-size: var(--fs-xl)">128–176 g</div>
+          <p class="dim small" style="margin: var(--sp-1) 0 var(--sp-3)">protein per day (1.6–2.2 g per kg)</p>
+          <div class="kv"><span>Per meal</span><span id="t-meal">32–44 g</span></div>
+          <p class="note" style="margin-top: 0">Over 4 meals.</p>
+          <div class="kv"><span>Before bed</span><span>30–40 g</span></div>
+          <p class="note" style="margin-top: 0">Greek yogurt or cottage cheese.</p>
+        </section>
+        <p class="menu-note">Why these numbers? See the <a href="#/guide">guide</a>.</p>
+      </section>
+
+      <!-- ============ MENU ============ -->
+      <section class="view" data-route="/menu" data-title="Menu">
+        <div class="search"><input class="input" id="search" type="search" placeholder="Search dishes or ingredients" aria-label="Search recipes" autocomplete="off" enterkeyhint="search"></div>
+        <div class="chips" role="group" aria-label="Filter dishes" id="filters">
+          <button type="button" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" data-filter="crockpot" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-crockpot"/></svg>Crockpot</button>
+          <button type="button" data-filter="airfryer" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-airfryer"/></svg>Air fryer</button>
+          <button type="button" data-filter="grill" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-grill"/></svg>Grill</button>
+          <button type="button" data-filter="side" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-bowl"/></svg>Sides</button>
+          <button type="button" data-filter="sweet" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-sweet"/></svg>Breakfast &amp; sweets</button>
+        </div>
+        <div class="list-meta"><span id="menu-count">—</span><button type="button" data-open-sheet="sort-sheet">Sort: <span id="sort-label">Most protein</span></button></div>
+        <div class="cards" id="grid"></div>
+      </section>
+
+      <!-- ============ RECIPE ============ -->
+      <section class="view" data-route="/menu/recipe" data-title="Recipe">
+        <div id="recipe"></div>
+      </section>
+
+      <!-- ============ SHOPPING ============ -->
+      <section class="view" data-route="/shop" data-title="Shopping">
+        <div class="segmented" role="group" aria-label="Measurements">
+          <button type="button" data-units="metric">Grams</button>
+          <button type="button" data-units="us">Cups &amp; spoons</button>
+        </div>
+        <div class="shop-progress" id="shop-progress"></div>
+        <div class="stack" id="shop" style="gap: var(--sp-5)"></div>
+      </section>
+
+      <!-- ============ GUIDE ============ -->
+      <section class="view guide" data-route="/guide" data-title="Guide">
+        <section class="panel" data-title="What the research says">
+          <div class="stack">
+            <div><h3>Daily total matters most</h3><p>Muscle gains level off around 1.6 g/kg a day, with some people still benefiting up to about 2.2 g/kg. Aim higher when older or eating in a calorie deficit.</p></div>
+            <div><h3>Spread it out</h3><p>About 0.4 g/kg per meal over 4 meals works well. A big meal still builds muscle, so don't worry if one runs large.</p></div>
+            <div><h3>Pick quality sources</h3><p>Favor fish, poultry, beans, dairy and lean unprocessed red meat. Keep processed meats rare and eat oily fish about twice a week.</p></div>
+            <div><h3>Grill smarter</h3><p>Charring meat forms HCAs and PAHs. Marinate, flip often, trim fat to cut flare-ups, and skip the blackened bits.</p></div>
+          </div>
+        </section>
+        <section class="panel temps" data-title="Safe internal temps">
+          <div class="kv"><span>Chicken &amp; turkey</span><span>165°F</span></div>
+          <div class="kv"><span>Ground beef</span><span>160°F</span></div>
+          <div class="kv"><span>Pork &amp; steak</span><span>145°F</span></div>
+          <p class="note" style="margin-top: 0">Rest pork and steak 3 min.</p>
+          <div class="kv"><span>Fish</span><span>145°F</span></div>
+        </section>
+        <section class="panel" data-title="Sources">
+          <p class="source">Research: Morton et al., Br J Sports Med 2018; Schoenfeld &amp; Aragon, JISSN 2018; Trommelen et al., Cell Reports Medicine 2023; ISSN Position Stand 2017; National Cancer Institute; USDA FSIS. Ratings are as shown on each source page in October 2026. Macros are our estimates from USDA FoodData Central values for the ingredients as listed here (about ±10%), so they can differ from the source site's numbers.</p>
+        </section>
+      </section>
+
+      <!-- ============ SETTINGS ============ -->
+      <section class="view" data-route="/settings" data-title="Settings">
+        <div class="menu-group">
+          <span class="label">General</span>
+          <div class="menu">
+            <a class="menu-item" href="#/target"><span class="mi-glyph" aria-hidden="true">○</span><span class="mi-label">Body weight</span><span class="mi-value" id="set-weight">176 lb</span></a>
+            <a class="menu-item" href="#/settings/units"><span class="mi-glyph" aria-hidden="true">g</span><span class="mi-label">Measurements<small>How recipe amounts are shown</small></span><span class="mi-value" id="set-units">Grams</span></a>
+          </div>
+        </div>
+        <div class="menu-group">
+          <span class="label">Appearance</span>
+          <div class="menu">
+            <a class="menu-item" href="#/settings/display"><span class="mi-glyph" aria-hidden="true">▣</span><span class="mi-label">Display</span><span class="mi-value">CRT <span data-setting-value="crt"></span></span></a>
+          </div>
+        </div>
+        <div class="menu-group">
+          <span class="label">Data</span>
+          <div class="menu">
+            <button class="menu-item" id="export"><span class="mi-glyph" aria-hidden="true">↑</span><span class="mi-label">Export backup<small>Save to Files or iCloud Drive</small></span></button>
+            <button class="menu-item" id="import"><span class="mi-glyph" aria-hidden="true">↓</span><span class="mi-label">Import backup<small>Restore a kitchen-log-backup file</small></span></button>
+            <button class="menu-item danger" id="erase"><span class="mi-glyph" aria-hidden="true">✕</span><span class="mi-label">Erase all data</span></button>
+          </div>
+          <input type="file" id="import-file" accept="application/json,.json" hidden>
+          <p class="menu-note">Your plate, servings, settings and shopping ticks live only on this phone. Export a backup now and then.</p>
+        </div>
+        <div class="menu-group">
+          <span class="label">About</span>
+          <div class="menu">
+            <a class="menu-item" href="#/settings/about"><span class="mi-glyph" aria-hidden="true">i</span><span class="mi-label">About</span><span class="mi-value">v2.0</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-route="/settings/units" data-title="Measurements">
+        <div class="menu" role="radiogroup" aria-label="Measurements">
+          <button class="menu-item" role="radio" data-pick-units="metric"><span class="mi-label">Grams<small>Weights in grams, counts for whole items</small></span></button>
+          <button class="menu-item" role="radio" data-pick-units="us"><span class="mi-label">Cups &amp; spoons<small>US cups, tablespoons and teaspoons</small></span></button>
+        </div>
+        <p class="menu-note">You can also switch this on any recipe or on the shopping list.</p>
+      </section>
+
+      <section class="view" data-route="/settings/display" data-title="Display">
+        <div class="menu">
+          <label class="menu-item"><span class="mi-label">CRT scanlines<small>Faint lines and vignette on the screen</small></span><input type="checkbox" role="switch" class="mi-switch" data-setting="crt"></label>
+          <label class="menu-item"><span class="mi-label">Matrix rain<small>Falling code behind the screen</small></span><input type="checkbox" role="switch" class="mi-switch" data-setting="rain"></label>
+        </div>
+        <p class="menu-note">Animations turn off automatically when Reduce Motion is on.</p>
+        <div class="menu">
+          <button class="menu-item" id="reset-display"><span class="mi-label">Reset display to defaults</span></button>
+        </div>
+      </section>
+
+      <section class="view" data-route="/settings/about" data-title="About">
+        <section class="panel" data-title="Kitchen Log">
+          <div class="kv"><span>Version</span><span>2.0</span></div>
+          <div class="kv"><span>Main dishes</span><span id="ab-mains">—</span></div>
+          <div class="kv"><span>Sides</span><span id="ab-sides">—</span></div>
+          <div class="kv"><span>Breakfast &amp; sweets</span><span id="ab-sweets">—</span></div>
+          <div class="kv"><span>Works offline</span><span class="t-accent">Yes</span></div>
+          <div class="kv"><span>Storage</span><span>This phone</span></div>
+        </section>
+        <p class="menu-note">High-protein recipes from the crockpot, air fryer, grill and stovetop, each based on a well-reviewed recipe online and written as a step table. Research notes and safe temps are in the <a href="#/guide">guide</a>.</p>
+      </section>
+
+      </div><!-- /.screen-body -->
+    </div><!-- /.screen -->
+
+    <nav class="app-controls" aria-label="Controls">
+      <button class="key key-sm" data-back aria-label="Back">‹</button>
+      <button class="key key-sm" data-open-sheet="menu" aria-label="Menu">☰</button>
+      <div class="page-keys" data-show-on="/" hidden><button class="key key-sm" data-route="/menu" aria-label="Add a dish">+</button></div>
+      <div class="page-keys" data-show-on="/menu" id="sort-key" hidden><button class="key key-sm word" data-open-sheet="sort-sheet">Sort</button></div>
+      <div class="page-keys" data-show-on="/menu/recipe" hidden><button class="key key-sm word" data-act="add-recipe">Add</button></div>
+      <div class="page-keys" data-show-on="/shop" hidden><button class="key key-sm" data-act="uncheck" aria-label="Uncheck all">⟳</button></div>
+      <button class="key key-sm" data-route="/settings" data-show-on="/target /guide" hidden aria-label="Settings">⚙</button>
+      <button class="key key-sm" data-route="/" data-show-on="/settings" hidden aria-label="Today's plate">■</button>
+    </nav>
+  </main>
+
+  <dialog class="sheet dropdown" id="menu" aria-label="Menu">
+    <div class="sheet-title">Go to</div>
+    <div class="menu" data-sections>
+      <button class="menu-item" data-route="/"><span class="mi-glyph" aria-hidden="true">■</span><span class="mi-label">Today's plate</span></button>
+      <button class="menu-item" data-route="/menu"><span class="mi-glyph" aria-hidden="true">▸</span><span class="mi-label">Menu</span></button>
+      <button class="menu-item" data-route="/shop"><span class="mi-glyph" aria-hidden="true">□</span><span class="mi-label">Shopping list</span><span class="mi-count" id="shop-count" hidden>0</span></button>
+      <button class="menu-item" data-route="/guide"><span class="mi-glyph" aria-hidden="true">?</span><span class="mi-label">Guide</span></button>
+      <button class="menu-item" data-route="/settings"><span class="mi-glyph" aria-hidden="true">⚙</span><span class="mi-label">Settings</span></button>
+    </div>
+    <div class="sheet-title">Actions</div>
+    <div class="menu">
+      <button class="menu-item" data-action="target"><span class="mi-glyph" aria-hidden="true">○</span><span class="mi-label">Set body weight</span></button>
+      <button class="menu-item" data-action="uncheck"><span class="mi-glyph" aria-hidden="true">⟳</span><span class="mi-label">Uncheck shopping list</span></button>
+      <button class="menu-item danger" data-action="clear"><span class="mi-glyph" aria-hidden="true">✕</span><span class="mi-label">Clear today's plate</span></button>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="sort-sheet" aria-label="Sort dishes">
+    <div class="sheet-title">Sort dishes by</div>
+    <div class="menu" role="radiogroup" aria-label="Sort dishes by" id="sort-list">
+      <button class="menu-item" role="radio" data-sort="protein" data-close><span class="mi-label">Most protein</span></button>
+      <button class="menu-item" role="radio" data-sort="density" data-close><span class="mi-label">Leanest<small>Protein per calorie</small></span></button>
+      <button class="menu-item" role="radio" data-sort="kcal" data-close><span class="mi-label">Fewest calories</span></button>
+      <button class="menu-item" role="radio" data-sort="rating" data-close><span class="mi-label">Most reviewed</span></button>
+      <button class="menu-item" role="radio" data-sort="name" data-close><span class="mi-label">A to Z</span></button>
+    </div>
+  </dialog>
+
+  <div class="toast-host" aria-live="polite"></div>
+  <script>
+/*@@PHOSPHOR_JS@@*/
+  </script>
+  <script>
+/*@@DATA_JS@@*/
+/*@@APP_JS@@*/
+  </script>
+  <script>
+(() => {
+  const c = document.querySelector('.rain');
+  if (!c || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const x = c.getContext('2d'), glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄ0123456789<>/=+*';
+  let cols, drops, fs = 16, last = 0, raf;
+  const size = () => { c.width = c.offsetWidth; c.height = c.offsetHeight;
+    cols = Math.ceil(c.width / fs); drops = Array.from({length: cols}, () => Math.random() * -50); };
+  const tick = t => { raf = requestAnimationFrame(tick); if (t - last < 50) return; last = t;
+    x.fillStyle = 'rgba(3,7,3,.12)'; x.fillRect(0, 0, c.width, c.height);  // c sized to .screen in size()
+    x.fillStyle = '#39FF6A'; x.font = fs + 'px ui-monospace, monospace';
+    drops.forEach((y, i) => { x.fillText(glyphs[Math.random() * glyphs.length | 0], i * fs, y * fs);
+      drops[i] = y * fs > c.height && Math.random() > .975 ? 0 : y + 1; }); };
+  addEventListener('resize', size); size(); raf = requestAnimationFrame(tick);
+  document.addEventListener('visibilitychange', () =>
+    document.hidden ? cancelAnimationFrame(raf) : (raf = requestAnimationFrame(tick)));
+})();
+  </script>
+</body>
+</html>
