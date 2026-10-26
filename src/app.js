@@ -123,8 +123,6 @@ function renderTarget() {
   const t = targets(), w = `${Number(state.weight) || 0} ${state.unit}`;
   $("t-daily").textContent = `${t.lo}–${t.hi} g`;
   $("t-meal").textContent = `${t.mlo}–${t.mhi} g`;
-  $("home-target").textContent = `${t.lo}–${t.hi} g/day`;
-  $("home-weight").textContent = `Body weight ${w}`;
   $("set-weight").textContent = w;
   $("unit-lb").setAttribute("aria-pressed", state.unit === "lb");
   $("unit-kg").setAttribute("aria-pressed", state.unit === "kg");
@@ -149,40 +147,40 @@ function add(id) {
   PH.toast(`${ALL[id].name.replace(/,.*$/, "")}: ${x[1]}× on plate.`);
 }
 
+const SV = (d, w = "2") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="square" aria-hidden="true"><path d="${d}"/></svg>`;
 function renderPlate() {
   const t = targets();
   let P=0,K=0,C=0,F=0;
   state.plate.forEach(([id, n]) => { const x = ALL[id]; P+=x.p*n; K+=x.kcal*n; C+=x.c*n; F+=x.f*n; });
+  const n = state.plate.length;
   $("p-total").innerHTML = `${Math.round(P)}<small> g</small>`;
   $("p-target").textContent = `${t.lo}–${t.hi}`;
-  $("m-kcal").textContent = Math.round(K);
-  $("m-c").textContent = Math.round(C) + " g";
-  $("m-f").textContent = Math.round(F) + " g";
-  const scale = Math.max(t.hi * 1.15, P, 1);
-  $("p-fill").style.setProperty("--value", Math.min(100, P / scale * 100) + "%");
-  $("p-band").style.left = (t.lo / scale * 100) + "%";
-  $("p-band").style.width = ((t.hi - t.lo) / scale * 100) + "%";
-  const m = $("p-meter"); m.setAttribute("aria-valuemax", t.hi); m.setAttribute("aria-valuenow", Math.round(P));
-  const s = $("p-status");
-  if (!state.plate.length) { s.textContent = "Your plate is empty. Add a dish from the menu."; s.className = "status"; }
-  else if (P < t.lo) { s.textContent = `${Math.round(t.lo - P)} g to go to reach your minimum.`; s.className = "status warn"; }
-  else if (P <= t.hi) { s.textContent = "Right in your target range."; s.className = "status good"; }
-  else { s.textContent = "Above the range. That's safe, but the extra adds little muscle."; s.className = "status good"; }
+  $("p-sub").textContent = n ? `${n} item${n === 1 ? "" : "s"} · ${Math.round(K)} kcal · C ${Math.round(C)} g · F ${Math.round(F)} g` : "Nothing on it yet";
+  // gauge: full circle = 115% of the top of the range; the outer tick arc marks the target range
+  const scale = Math.max(t.hi * 1.15, P, 1), pct = v => Math.min(100, v / scale * 100);
+  $("g-arc").setAttribute("stroke-dasharray", `${pct(P)} 100`);
+  $("g-target").setAttribute("stroke-dasharray", `0 ${pct(t.lo)} ${pct(t.hi) - pct(t.lo)} 100`);
+  $("gauge").setAttribute("aria-label", `${Math.round(P)} of ${t.lo} to ${t.hi} grams protein today. Open protein target.`);
+  const s = $("p-status"), led = $("p-led");
+  if (!n) { s.textContent = "Plate empty"; s.className = "g-st"; led.className = "led"; }
+  else if (P < t.lo) { s.textContent = `WARN> ${Math.round(t.lo - P)} g to go`; s.className = "g-st warn"; led.className = "led wait"; }
+  else if (P <= t.hi) { s.textContent = "✓ In range"; s.className = "g-st good"; led.className = "led on"; }
+  else { s.textContent = "✓ Above range"; s.className = "g-st good"; led.className = "led on"; }
   $("example-note").hidden = !isExample;
-  $("plate-items").innerHTML = state.plate.map(([id, q], i) => {
+  $("plate-items").innerHTML = n ? state.plate.map(([id, q], i) => {
     const x = ALL[id];
-    const name = x.ing ? `<button type="button" class="name-link" data-open="${id}">${esc(x.name)}</button>` : esc(x.name);
-    return `<li><span class="name">${name}</span>
-      <span class="qty"><button type="button" class="btn" data-dec="${i}" aria-label="Less ${esc(x.name)}">−</button><span class="num">${q}×</span><button type="button" class="btn" data-inc="${i}" aria-label="More ${esc(x.name)}">+</button></span>
-      <span class="p">${Math.round(x.p*q)} g</span></li>`;
-  }).join("");
-  $("plate-items").hidden = !state.plate.length;
+    const main = x.ing ? `<button type="button" class="line-main" data-open="${id}"><span class="line-t">${esc(x.name)}</span><span class="line-s">${x.p} g a serving · tap for recipe</span></button>`
+                       : `<span class="line-main" style="cursor:default"><span class="line-t">${esc(x.name)}</span><span class="line-s">${x.p} g each</span></span>`;
+    return `<div class="line">${main}
+      <button type="button" class="rm-b ic" data-dec="${i}" aria-label="Less ${esc(x.name)}">${SV("M5 12h14", "2.4")}</button><span class="qn">${q}×</span><button type="button" class="rm-b ic" data-inc="${i}" aria-label="More ${esc(x.name)}">${SV("M12 5v14M5 12h14", "2.4")}</button>
+      <span class="pg">${Math.round(x.p*q)}g</span></div>`;
+  }).join("") : `<div class="line empty-strip"><span class="line-ic">${SV("M12 5v14M5 12h14")}</span><button type="button" class="line-main" data-route="/menu"><span class="line-t">Add a dish</span><span class="line-s">Pick from the menu</span></button></div>`;
   renderShop();
 }
 
 function renderAddons() {
   $("addons").innerHTML = ADDONS.map(a =>
-    `<button type="button" class="menu-item" data-add="${a.id}" aria-label="Add ${esc(a.name)} to plate"><span class="mi-glyph" aria-hidden="true">+</span><span class="mi-label">${esc(a.name)}<small>${a.kcal} kcal</small></span><span class="mi-value t-accent">${a.p} g</span></button>`).join("");
+    `<button type="button" class="menu-item" data-add="${a.id}" data-close aria-label="Add ${esc(a.name)} to plate"><span class="mi-glyph" aria-hidden="true">+</span><span class="mi-label">${esc(a.name)}<small>${a.kcal} kcal</small></span><span class="mi-value t-accent">${a.p} g</span></button>`).join("");
 }
 
 /* ---------- Menu ---------- */
@@ -264,8 +262,9 @@ function renderShop() {
   let total = 0, got = 0;
   recs.forEach(r => r.ing.forEach((g, i) => { total++; if (state.got[r.id + ":" + i]) got++; }));
   const left = total - got;
-  $("home-shop").textContent = total ? (left ? `${left} to get` : "All set") : "—";
-  $("shop-count").textContent = left; $("shop-count").hidden = !left;
+  $("home-shop").textContent = left ? `${left} item${left === 1 ? "" : "s"} to get` : "All ticked off";
+  $("shop-line").hidden = !total;
+  for (const id of ["shop-count", "ch-shop"]) { $(id).textContent = left; $(id).hidden = !left; }
   if (!recs.length) {
     $("shop-progress").innerHTML = "";
     $("shop").innerHTML = `<div class="empty"><pre aria-hidden="true">  ______
